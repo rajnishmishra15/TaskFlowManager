@@ -124,6 +124,9 @@ function prepareWrapper(sql) {
   };
 }
 
+let readyResolve;
+const ready = new Promise((resolve) => { readyResolve = resolve; });
+
 (async () => {
   try {
     SQL = await initSqlJs();
@@ -136,6 +139,7 @@ function prepareWrapper(sql) {
       persist();
     }
     console.log('✅ Database (sql.js) initialized at', DB_PATH);
+    readyResolve();
   } catch (err) {
     console.error('Failed to initialize sql.js DB:', err);
     process.exit(1);
@@ -143,6 +147,7 @@ function prepareWrapper(sql) {
 })();
 
 module.exports = {
+  ready,
   prepare: (sql) => prepareWrapper(sql),
   exec: (sql) => {
     const res = db.exec(sql);
